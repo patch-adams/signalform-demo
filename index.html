@@ -894,6 +894,12 @@
             transform: translateY(30px);
         }
 
+        /* Ensure customize button is visible even without GSAP */
+        .customize-toggle {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
         /* ─── MOBILE ─── */
         @media (max-width: 768px) {
             .narrative-map {
