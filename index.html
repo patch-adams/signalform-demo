@@ -889,15 +889,10 @@
         }
 
         /* ─── FADE IN ─── */
-        .fade-in {
+        /* Only hide for animation when GSAP is confirmed loaded */
+        .gsap-ready .fade-in {
             opacity: 0;
             transform: translateY(30px);
-        }
-
-        /* Ensure customize button is visible even without GSAP */
-        .customize-toggle {
-            opacity: 1 !important;
-            visibility: visible !important;
         }
 
         /* ─── MOBILE ─── */
@@ -1336,7 +1331,7 @@ function togglePanel() {
     backdrop.classList.toggle('visible', panelOpen);
     toggleBtn.classList.toggle('hidden', panelOpen);
 
-    if (panelOpen) {
+    if (panelOpen && typeof gsap !== 'undefined') {
         gsap.from(panel, { x: 50, opacity: 0.8, duration: 0.4, ease: 'power2.out' });
     }
 }
@@ -1449,21 +1444,30 @@ function loadSaved() {
 }
 
 function showToast() {
-    gsap.to(toast, {
-        y: 0,
-        opacity: 1,
-        duration: 0.4,
-        ease: 'back.out(1.5)',
-        onComplete: () => {
-            gsap.to(toast, {
-                y: -100,
-                opacity: 0,
-                delay: 1.8,
-                duration: 0.3,
-                ease: 'power2.in'
-            });
-        }
-    });
+    if (typeof gsap !== 'undefined') {
+        gsap.to(toast, {
+            y: 0,
+            opacity: 1,
+            duration: 0.4,
+            ease: 'back.out(1.5)',
+            onComplete: () => {
+                gsap.to(toast, {
+                    y: -100,
+                    opacity: 0,
+                    delay: 1.8,
+                    duration: 0.3,
+                    ease: 'power2.in'
+                });
+            }
+        });
+    } else {
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(-100px)';
+        }, 2200);
+    }
 }
 
 // ─── OVERLAY ───
@@ -1481,13 +1485,15 @@ function openOverlay(id) {
     overlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
 
-    gsap.from(overlayContent.children, {
-        opacity: 0,
-        y: 25,
-        stagger: 0.1,
-        duration: 0.5,
-        ease: 'power2.out'
-    });
+    if (typeof gsap !== 'undefined') {
+        gsap.from(overlayContent.children, {
+            opacity: 0,
+            y: 25,
+            stagger: 0.1,
+            duration: 0.5,
+            ease: 'power2.out'
+        });
+    }
 }
 
 function closeOverlay() {
@@ -1515,33 +1521,42 @@ function hexToRgba(hex, alpha) {
 document.addEventListener('DOMContentLoaded', () => {
     loadSaved();
 
-    // Staggered entrance
-    gsap.to('.fade-in', {
-        opacity: 1,
-        y: 0,
-        stagger: 0.12,
-        duration: 0.8,
-        ease: 'power2.out',
-        delay: 0.2
-    });
+    // Only run animations if GSAP loaded successfully
+    if (typeof gsap !== 'undefined') {
+        // Mark body so CSS knows GSAP is available
+        document.body.classList.add('gsap-ready');
 
-    // CTA footer entrance
-    gsap.from('#ctaFooter', {
-        y: 80,
-        opacity: 0,
-        duration: 0.6,
-        ease: 'back.out(1.2)',
-        delay: 1.2
-    });
+        // Set initial state for fade-in elements
+        gsap.set('.fade-in', { opacity: 0, y: 30 });
 
-    // Customize button entrance
-    gsap.from('#customizeToggle', {
-        x: 60,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        delay: 1.5
-    });
+        // Staggered entrance
+        gsap.to('.fade-in', {
+            opacity: 1,
+            y: 0,
+            stagger: 0.12,
+            duration: 0.8,
+            ease: 'power2.out',
+            delay: 0.2
+        });
+
+        // CTA footer entrance
+        gsap.from('#ctaFooter', {
+            y: 80,
+            opacity: 0,
+            duration: 0.6,
+            ease: 'back.out(1.2)',
+            delay: 1.2
+        });
+
+        // Customize button entrance
+        gsap.from('#customizeToggle', {
+            x: 60,
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.out',
+            delay: 1.5
+        });
+    }
 });
 </script>
 
