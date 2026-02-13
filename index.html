@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalform — Interactive Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --accent: #0A8F7F;
+            --accent-light: rgba(10, 143, 127, 0.08);
+            --accent-mid: rgba(10, 143, 127, 0.15);
+            --cream: #FAF8F5;
+            --paper: #F2EDE7;
+            --ink: #1A1A1A;
+            --ink-50: rgba(26, 26, 26, 0.5);
+            --ink-30: rgba(26, 26, 26, 0.3);
+            --ink-10: rgba(26, 26, 26, 0.1);
+            --ink-05: rgba(26, 26, 26, 0.05);
+            --white: #FFFFFF;
+            --border: #E8E0D5;
+            --panel-width: 380px;
+            --cta-height: 80px;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--cream);
+            color: var(--ink);
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .paper-texture {
+            position: fixed;
+            inset: 0;
+            opacity: 0.04;
+            pointer-events: none;
+            background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+            z-index: 9000;
+        }
+
+        /* ─── TYPOGRAPHY ─── */
+        .font-display { font-family: 'Fraunces', Georgia, serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* ─── LAYOUT ─── */
+        .demo-wrapper {
+            display: flex;
+            min-height: 100vh;
+            transition: padding-right 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .demo-wrapper.panel-open {
+            padding-right: var(--panel-width);
+        }
+
+        .narrative-map {
+            flex: 1;
+            padding: 3rem 4rem;
+            padding-bottom: calc(var(--cta-height) + 4rem);
+            max-width: 1100px;
+            margin: 0 auto;
+            transition: max-width 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .demo-wrapper.panel-open .narrative-map {
+            max-width: 900px;
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ─── HEADER ─── */
+        .map-header {
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-mark {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+
+        .brand-name {
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            transition: color 0.3s;
+        }
+
+        .brand-nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .brand-nav a {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ink-50);
+            text-decoration: none;
+            transition: color 0.3s;
+            letter-spacing: 0.01em;
+        }
+
+        .brand-nav a:hover { color: var(--accent); }
+
+        .brand-nav .nav-cta {
+            color: var(--accent);
+            border: 1.5px solid var(--accent);
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: all 0.3s;
+        }
+
+        .brand-nav .nav-cta:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .hero-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.25rem;
+            color: var(--ink);
+        }
+
+        .hero-title .accent-word {
+            color: var(--accent);
+            transition: color 0.3s;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--ink-50);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .hero-subtitle .key-message {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .hero-tags {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.75rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            background: var(--accent-light);
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        /* ─── INTRO SECTION ─── */
+        .map-intro {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .intro-stat {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .intro-stat:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-number {
+            font-family: 'Fraunces', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-50);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ─── SECTION LABEL ─── */
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--ink-30);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ─── BENTO GRID ─── */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .bento-grid .bento-card:first-child {
+            grid-column: span 2;
+        }
+
+        .bento-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 2.25rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 220px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .bento-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 30px 60px rgba(10, 143, 127, 0.06);
+        }
+
+        .bento-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            background: var(--accent-light);
+            padding: 5px 11px;
+            border-radius: 5px;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.01em;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: var(--ink-50);
+            line-height: 1.65;
+            flex: 1;
+        }
+
+        .card-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1.25rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            transition: gap 0.3s;
+        }
+
+        .bento-card:hover .card-action { gap: 12px; }
+
+        .card-action svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .bento-card:hover .card-action svg { transform: translateX(2px); }
+
+        /* ─── OVERLAY ─── */
+        .section-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--white);
+            z-index: 8000;
+            display: none;
+            overflow-y: auto;
+            padding: 5rem 3rem;
+        }
+
+        .overlay-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .close-overlay {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: var(--paper);
+            border-radius: 50%;
+            width: 3.25rem;
+            height: 3.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 8100;
+            border: none;
+            font-size: 1.4rem;
+            color: var(--ink);
+            transition: all 0.35s;
+        }
+
+        .close-overlay:hover {
+            background: var(--accent);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .overlay-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .overlay-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .overlay-lead {
+            font-size: 1.15rem;
+            color: var(--ink-50);
+            line-height: 1.75;
+            margin-bottom: 2.5rem;
+            font-style: italic;
+            font-family: 'Fraunces', serif;
+            font-weight: 300;
+        }
+
+        .overlay-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .overlay-block {
+            background: var(--cream);
+            padding: 2rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--ink-05);
+        }
+
+        .overlay-block h4 {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .overlay-block p {
+            font-size: 0.88rem;
+            color: var(--ink-50);
+            line-height: 1.65;
+        }
+
+        .overlay-highlight {
+            background: var(--accent);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            margin-top: 1.25rem;
+        }
+
+        .overlay-highlight h4 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .overlay-highlight p {
+            opacity: 0.85;
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .overlay-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .overlay-step {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent);
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-text strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-text p {
+            font-size: 0.88rem;
+            color: var(--ink-50);
+            line-height: 1.6;
+        }
+
+        /* ─── CUSTOMIZE BUTTON ─── */
+        .customize-toggle {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            z-index: 7000;
+            background: var(--ink);
+            color: white;
+            border: none;
+            padding: 1rem 1.25rem;
+            border-radius: 1rem 0 0 1rem;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transition: all 0.35s;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+        }
+
+        .customize-toggle:hover {
+            padding-right: 1.75rem;
+            background: var(--accent);
+        }
+
+        .customize-toggle.hidden { display: none; }
+
+        /* ─── CUSTOMIZATION PANEL ─── */
+        .custom-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: var(--panel-width);
+            background: var(--white);
+            border-left: 1px solid var(--border);
+            z-index: 7500;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .custom-panel.open { transform: translateX(0); }
+
+        .panel-header {
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 2;
+        }
+
+        .panel-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .panel-close {
+            background: var(--paper);
+            border: none;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--ink-50);
+            transition: all 0.3s;
+        }
+
+        .panel-close:hover {
+            background: var(--ink);
+            color: white;
+        }
+
+        .panel-body {
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .panel-intro {
+            font-size: 0.85rem;
+            color: var(--ink-50);
+            line-height: 1.65;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--ink-05);
+        }
+
+        .field-group {
+            margin-bottom: 2rem;
+        }
+
+        .field-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink-30);
+            margin-bottom: 0.65rem;
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: 0.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.9rem;
+            color: var(--ink);
+            background: var(--cream);
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .field-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .field-textarea {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .color-field {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .color-picker-wrap {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .color-picker-wrap input[type="color"] {
+            position: absolute;
+            inset: -8px;
+            width: calc(100% + 16px);
+            height: calc(100% + 16px);
+            border: none;
+            cursor: pointer;
+        }
+
+        .color-hex {
+            flex: 1;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .color-preset {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .color-preset:hover {
+            transform: scale(1.15);
+        }
+
+        .color-preset.active {
+            border-color: var(--ink);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--ink);
+        }
+
+        /* ─── PANEL FOOTER ─── */
+        .panel-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+            position: sticky;
+            bottom: 0;
+            background: var(--white);
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 0.85rem;
+            background: var(--ink);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover { background: var(--accent); }
+
+        .btn-reset {
+            padding: 0.85rem 1.25rem;
+            background: var(--paper);
+            color: var(--ink-50);
+            border: none;
+            border-radius: 0.75rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-reset:hover { background: var(--border); color: var(--ink); }
+
+        .save-toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--ink);
+            color: white;
+            padding: 0.85rem 2rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 9500;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* ─── CTA FOOTER ─── */
+        .cta-footer {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 26, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            padding: 0.85rem 1.25rem 0.85rem 2rem;
+            border-radius: 999px;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            z-index: 6000;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.82rem;
+            white-space: nowrap;
+            font-style: italic;
+            font-family: 'Fraunces', serif;
+            font-weight: 300;
+        }
+
+        .cta-text strong {
+            color: white;
+            font-style: normal;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+        }
+
+        .cta-btn {
+            background: var(--accent);
+            color: white;
+            padding: 0.7rem 1.75rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .cta-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* ─── SIGNALFORM BADGE ─── */
+        .sf-badge {
+            text-align: center;
+            padding: 3rem 2rem;
+            padding-bottom: calc(var(--cta-height) + 3rem);
+        }
+
+        .sf-badge-text {
+            font-size: 0.72rem;
+            color: var(--ink-30);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .sf-badge-text a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .sf-badge-text a:hover { text-decoration: underline; }
+
+        .sf-built {
+            font-family: 'Fraunces', serif;
+            font-style: italic;
+            font-weight: 300;
+            color: var(--ink-30);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* ─── DEMO BANNER ─── */
+        .demo-banner {
+            background: var(--accent-light);
+            border: 1px dashed var(--accent);
+            border-radius: 1rem;
+            padding: 1.25rem 1.75rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .demo-banner-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .demo-banner-text {
+            font-size: 0.85rem;
+            color: var(--ink);
+            line-height: 1.55;
+        }
+
+        .demo-banner-text strong {
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        /* ─── FADE IN ─── */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 768px) {
+            .narrative-map {
+                padding: 1.75rem 1.25rem;
+                padding-bottom: calc(var(--cta-height) + 3rem);
+            }
+
+            .demo-wrapper.panel-open { padding-right: 0; }
+
+            .brand-bar { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .brand-nav { gap: 1rem; }
+
+            .hero-title { font-size: 1.8rem; }
+
+            .map-intro { grid-template-columns: 1fr; }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bento-grid .bento-card:first-child {
+                grid-column: span 1;
+            }
+
+            .bento-card { min-height: 180px; padding: 1.75rem; }
+
+            .custom-panel {
+                width: 100%;
+                top: auto;
+                bottom: 0;
+                height: 85vh;
+                border-left: none;
+                border-top: 1px solid var(--border);
+                border-radius: 1.5rem 1.5rem 0 0;
+                transform: translateY(100%);
+            }
+
+            .custom-panel.open { transform: translateY(0); }
+
+            .customize-toggle {
+                writing-mode: horizontal-tb;
+                top: auto;
+                bottom: calc(var(--cta-height) + 2rem);
+                right: 1rem;
+                border-radius: 999px;
+                padding: 0.85rem 1.5rem;
+                font-size: 0.72rem;
+            }
+
+            .cta-footer {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem 1.5rem;
+                border-radius: 1.25rem;
+                bottom: 0.75rem;
+                left: 0.75rem;
+                right: 0.75rem;
+                transform: none;
+                max-width: none;
+            }
+
+            .cta-text { white-space: normal; text-align: center; font-size: 0.78rem; }
+
+            .overlay-grid { grid-template-columns: 1fr; }
+
+            .section-overlay { padding: 4rem 1.5rem; }
+        }
+
+        /* ─── PANEL BACKDROP (mobile) ─── */
+        .panel-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 7400;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+
+        .panel-backdrop.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="paper-texture"></div>
+
+<!-- ─── DEMO WRAPPER ─── -->
+<div class="demo-wrapper" id="demoWrapper">
+    <div class="narrative-map">
+
+        <!-- DEMO BANNER -->
+        <div class="demo-banner fade-in">
+            <div class="demo-banner-icon">&#9670;</div>
+            <div class="demo-banner-text">
+                <strong>You're viewing an interactive demo.</strong>
+                Click "Make It Yours" to customize this presentation with your own brand — then imagine what we'd build together in 90 minutes.
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="map-header fade-in">
+            <div class="brand-bar">
+                <div class="brand-logo">
+                    <div class="brand-mark" id="brandMark">M</div>
+                    <span class="brand-name" id="brandNameDisplay">MERIDIAN FOODS</span>
+                </div>
+                <nav class="brand-nav">
+                    <a href="#">Catalog</a>
+                    <a href="#">Our Story</a>
+                    <a href="#" class="nav-cta">Request a Meeting</a>
+                </nav>
+            </div>
+
+            <h1 class="hero-title">
+                The Strategic Pitch — <br><span class="accent-word" id="heroAccent">Meridian Foods</span> × Premium Retail
+            </h1>
+            <p class="hero-subtitle">
+                <span class="key-message" id="keyMessageDisplay">Nutrient-dense, clean-label organic soups for the modern consumer.</span>
+                A data-driven case for shelf expansion, built around what your buyers actually care about.
+            </p>
+            <div class="hero-tags">
+                <span class="hero-tag">CPG Strategy</span>
+                <span class="hero-tag">Retail Growth</span>
+                <span class="hero-tag">Clean Label</span>
+                <span class="hero-tag">Category Expansion</span>
+            </div>
+        </header>
+
+        <!-- STATS -->
+        <div class="map-intro fade-in">
+            <div class="intro-stat">
+                <div class="stat-number">34%</div>
+                <div class="stat-label">Category Growth Potential</div>
+            </div>
+            <div class="intro-stat">
+                <div class="stat-number">2.4x</div>
+                <div class="stat-label">Basket Multiplier</div>
+            </div>
+        </div>
+
+        <!-- SECTIONS -->
+        <div class="section-label fade-in">Explore the Pitch &darr;</div>
+
+        <div class="bento-grid">
+            <div class="bento-card fade-in" onclick="openOverlay('opportunity')">
+                <div>
+                    <span class="card-tag">01 / Opportunity</span>
+                    <h3 class="card-title">The Market Opportunity</h3>
+                    <p class="card-desc">Premium organic soup is the fastest-growing frozen subcategory — and the shelf hasn't caught up. Here's the gap, the timing, and why <span class="inline-brand">Meridian</span> fills it.</p>
+                </div>
+                <span class="card-action">Explore the data <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" /></svg></span>
+            </div>
+
+            <div class="bento-card fade-in" onclick="openOverlay('product')">
+                <div>
+                    <span class="card-tag">02 / Product</span>
+                    <h3 class="card-title">The Product Line</h3>
+                    <p class="card-desc">Three formats. Zero compromise. From single-serve cups to family-size, every SKU is built for the modern pantry.</p>
+                </div>
+                <span class="card-action">View lineup <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" /></svg></span>
+            </div>
+
+            <div class="bento-card fade-in" onclick="openOverlay('strategy')">
+                <div>
+                    <span class="card-tag">03 / Strategy</span>
+                    <h3 class="card-title">Go-To-Market Strategy</h3>
+                    <p class="card-desc">Placement, pricing, and promotional cadence designed for your store format and shopper demographics.</p>
+                </div>
+                <span class="card-action">See the plan <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" /></svg></span>
+            </div>
+
+            <div class="bento-card fade-in" onclick="openOverlay('partnership')">
+                <div>
+                    <span class="card-tag">04 / Partnership</span>
+                    <h3 class="card-title">The Partnership Model</h3>
+                    <p class="card-desc">This isn't vendor-retailer. It's co-investment in a category. Here's what both sides put in and what both sides get.</p>
+                </div>
+                <span class="card-action">Partnership details <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" /></svg></span>
+            </div>
+
+            <div class="bento-card fade-in" onclick="openOverlay('nextsteps')">
+                <div>
+                    <span class="card-tag">05 / Next Steps</span>
+                    <h3 class="card-title">Next Steps</h3>
+                    <p class="card-desc">A clear path from this presentation to product on shelf. Three milestones, one timeline, zero ambiguity.</p>
+                </div>
+                <span class="card-action">View timeline <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clip-rule="evenodd" /></svg></span>
+            </div>
+        </div>
+
+        <!-- SIGNALFORM BADGE -->
+        <div class="sf-badge fade-in">
+            <div class="sf-badge-text">Built with <a href="https://signalformstudio.netlify.app/" target="_blank">Signalform</a></div>
+            <div class="sf-built">Built in 90 minutes (seriously).</div>
+        </div>
+
+    </div><!-- .narrative-map -->
+</div><!-- .demo-wrapper -->
+
+<!-- ─── CUSTOMIZE TOGGLE ─── -->
+<button class="customize-toggle" id="customizeToggle" onclick="togglePanel()">
+    &#9998; Make It Yours
+</button>
+
+<!-- ─── PANEL BACKDROP ─── -->
+<div class="panel-backdrop" id="panelBackdrop" onclick="togglePanel()"></div>
+
+<!-- ─── CUSTOMIZATION PANEL ─── -->
+<div class="custom-panel" id="customPanel">
+    <div class="panel-header">
+        <span class="panel-title">Make It Yours</span>
+        <button class="panel-close" onclick="togglePanel()">&times;</button>
+    </div>
+    <div class="panel-body">
+        <p class="panel-intro">
+            Customize this pitch with your brand. Changes appear instantly in the preview. Save to come back later.
+        </p>
+
+        <div class="field-group">
+            <label class="field-label" for="brandNameInput">Brand Name</label>
+            <input type="text" id="brandNameInput" class="field-input" placeholder="Your Brand Name" value="Meridian Foods">
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Accent Color</label>
+            <div class="color-field">
+                <div class="color-picker-wrap">
+                    <input type="color" id="colorPicker" value="#0A8F7F">
+                </div>
+                <input type="text" id="colorHex" class="field-input color-hex" placeholder="#0A8F7F" value="#0A8F7F">
+            </div>
+            <div class="color-presets" id="colorPresets">
+                <div class="color-preset active" style="background: #0A8F7F" data-color="#0A8F7F"></div>
+                <div class="color-preset" style="background: #006732" data-color="#006732"></div>
+                <div class="color-preset" style="background: #E8692B" data-color="#E8692B"></div>
+                <div class="color-preset" style="background: #2563EB" data-color="#2563EB"></div>
+                <div class="color-preset" style="background: #7C3AED" data-color="#7C3AED"></div>
+                <div class="color-preset" style="background: #DC2626" data-color="#DC2626"></div>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label" for="keyMessageInput">Key Message</label>
+            <textarea id="keyMessageInput" class="field-input field-textarea" placeholder="Your core value proposition...">Nutrient-dense, clean-label organic soups for the modern consumer.</textarea>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button class="btn-save" onclick="saveCustomization()">Save Changes</button>
+        <button class="btn-reset" onclick="resetCustomization()">Reset</button>
+    </div>
+</div>
+
+<!-- ─── OVERLAY ─── -->
+<div class="section-overlay" id="sectionOverlay">
+    <button class="close-overlay" onclick="closeOverlay()">&times;</button>
+    <div class="overlay-inner" id="overlayContent"></div>
+</div>
+
+<!-- ─── CTA FOOTER ─── -->
+<div class="cta-footer" id="ctaFooter">
+    <span class="cta-text"><em>This took 3 minutes.</em>&nbsp; <strong>Imagine 90.</strong></span>
+    <a href="https://calendly.com" target="_blank" class="cta-btn" id="ctaBtn">Book a Discovery Call</a>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div class="save-toast" id="saveToast">Saved to your browser &#10003;</div>
+
+<script>
+// ─── OVERLAY CONTENT DATA ───
+const overlayData = {
+    opportunity: {
+        tag: '01 / Opportunity',
+        title: 'The Market Opportunity',
+        lead: '"Premium organic soup is growing at 18% year-over-year while traditional frozen soup declines. The shelf is about to reorganize — the question is who leads it."',
+        html: `
+            <div class="overlay-grid">
+                <div class="overlay-block">
+                    <h4>The Gap</h4>
+                    <p>Premium retailers are over-indexed on legacy frozen brands and under-indexed on clean-label, single-serve formats. Consumers are buying organic soup — they're just buying it from the wrong aisle (ambient) because frozen hasn't given them a worthy option.</p>
+                </div>
+                <div class="overlay-block">
+                    <h4>The Timing</h4>
+                    <p>GLP-1 adoption is reshaping the frozen aisle. Users need nutrient-dense, portion-controlled meals. Soup — specifically premium, clean-label soup — is the perfect format. First mover in this positioning owns the category for years.</p>
+                </div>
+            </div>
+            <div class="overlay-highlight">
+                <h4>34% Category Growth</h4>
+                <p>Our market analysis projects 34% growth in premium frozen soup over the next 24 months, driven by health-conscious consumers migrating from ambient to frozen for freshness and convenience.</p>
+            </div>
+        `
+    },
+    product: {
+        tag: '02 / Product',
+        title: 'The Product Line',
+        lead: '"Three formats built for three moments: the single-serve cup for weekday lunch, the pouch for weeknight dinner, the family tub for Sunday. Every SKU under 300 calories, every ingredient pronounceable."',
+        html: `
+            <div class="overlay-steps">
+                <div class="overlay-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Single-Serve Cup (8oz)</strong>
+                        <p>Microwave-ready in 90 seconds. Designed for the desk lunch and the after-gym meal. Premium lid design, clean label front-of-pack. Six varieties launching.</p>
+                    </div>
+                </div>
+                <div class="overlay-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Family Pouch (24oz)</strong>
+                        <p>Stovetop or microwave. Two servings. Positioned as the "weeknight shortcut" — real soup, no prep. Resealable. Stands upright in freezer door.</p>
+                    </div>
+                </div>
+                <div class="overlay-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Heritage Tub (32oz)</strong>
+                        <p>The weekend format. Multi-serve, shareworthy. Positioned next to premium ice cream and family-size meals. This is the format that drives repeat and basket size.</p>
+                    </div>
+                </div>
+            </div>
+        `
+    },
+    strategy: {
+        tag: '03 / Strategy',
+        title: 'Go-To-Market Strategy',
+        lead: '"We don\'t want a slot in the freezer. We want to reorganize how the freezer is merchandised — with our products as the anchor of a new \'premium wellness\' section."',
+        html: `
+            <div class="overlay-grid">
+                <div class="overlay-block">
+                    <h4>Placement</h4>
+                    <p>Migrate out of the legacy "soup" section. Anchor a new premium wellness sub-section in frozen, adjacent to health-forward brands. Endcap program for launch quarter with sampling activation.</p>
+                </div>
+                <div class="overlay-block">
+                    <h4>Pricing</h4>
+                    <p>$5.99 single-serve, $9.99 family pouch, $12.99 heritage tub. Premium to category average but justified by clean label, portion design, and brand heritage. Margin structure: 42% to retailer.</p>
+                </div>
+            </div>
+            <div class="overlay-highlight">
+                <h4>Q1 Launch Cadence</h4>
+                <p>8-week phased rollout. Weeks 1-2: single-serve only (low risk, high trial). Weeks 3-4: add family pouch. Weeks 5-8: full assortment + heritage tub. Each phase includes in-store demo support and digital coupons.</p>
+            </div>
+        `
+    },
+    partnership: {
+        tag: '04 / Partnership',
+        title: 'The Partnership Model',
+        lead: '"This isn\'t a vendor pitch. It\'s a proposal for co-building a category. We invest in the story, the shelf, and the shopper — together."',
+        html: `
+            <div class="overlay-grid">
+                <div class="overlay-block">
+                    <h4>What We Invest</h4>
+                    <p>$180K in trade marketing for the first year. In-store demo teams (24 events/quarter). Digital co-op at 3% of net sales. Custom POS materials designed for your specific store format. Dedicated account manager.</p>
+                </div>
+                <div class="overlay-block">
+                    <h4>What We Ask</h4>
+                    <p>8 linear feet in premium frozen (non-legacy section). Inclusion in one seasonal endcap rotation per quarter. Access to shopper data for the category. 12-month commitment before performance review.</p>
+                </div>
+            </div>
+            <div class="overlay-highlight">
+                <h4>Shared Success Metrics</h4>
+                <p>We propose quarterly business reviews with transparent data sharing. If the category grows, we both win. If it doesn't hit targets by month 9, we adjust the plan together — no penalty exit.</p>
+            </div>
+        `
+    },
+    nextsteps: {
+        tag: '05 / Next Steps',
+        title: 'Next Steps',
+        lead: '"Three milestones, one timeline, zero ambiguity. Here\'s how we go from this conversation to product on shelf."',
+        html: `
+            <div class="overlay-steps">
+                <div class="overlay-step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Discovery Call (This Week)</strong>
+                        <p>30-minute conversation with your category manager and our sales lead. We walk through the data, answer questions, and align on whether this is a fit. No commitment required.</p>
+                    </div>
+                </div>
+                <div class="overlay-step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Sample & Shelf Plan (Week 2-3)</strong>
+                        <p>Full product samples delivered to your buying team. Custom planogram for your store format. Revised pricing if needed based on volume commitments.</p>
+                    </div>
+                </div>
+                <div class="overlay-step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Launch Commitment (Week 4)</strong>
+                        <p>Final terms. Purchase order. Launch date locked. Marketing activation calendar shared. From here, it's execution.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="overlay-highlight">
+                <h4>Ready to Start?</h4>
+                <p>Every week without premium organic soup on your shelf is revenue walking to the brand that gets there first. Let's make sure that's us.</p>
+            </div>
+        `
+    }
+};
+
+// ─── STATE ───
+const defaults = {
+    brandName: 'Meridian Foods',
+    accentColor: '#0A8F7F',
+    keyMessage: 'Nutrient-dense, clean-label organic soups for the modern consumer.'
+};
+
+let state = { ...defaults };
+
+// ─── DOM REFS ───
+const wrapper = document.getElementById('demoWrapper');
+const panel = document.getElementById('customPanel');
+const toggleBtn = document.getElementById('customizeToggle');
+const backdrop = document.getElementById('panelBackdrop');
+const overlay = document.getElementById('sectionOverlay');
+const overlayContent = document.getElementById('overlayContent');
+const toast = document.getElementById('saveToast');
+
+const brandNameInput = document.getElementById('brandNameInput');
+const colorPicker = document.getElementById('colorPicker');
+const colorHex = document.getElementById('colorHex');
+const keyMessageInput = document.getElementById('keyMessageInput');
+const presets = document.querySelectorAll('.color-preset');
+
+// ─── PANEL TOGGLE ───
+let panelOpen = false;
+
+function togglePanel() {
+    panelOpen = !panelOpen;
+    panel.classList.toggle('open', panelOpen);
+    wrapper.classList.toggle('panel-open', panelOpen);
+    backdrop.classList.toggle('visible', panelOpen);
+    toggleBtn.classList.toggle('hidden', panelOpen);
+
+    if (panelOpen) {
+        gsap.from(panel, { x: 50, opacity: 0.8, duration: 0.4, ease: 'power2.out' });
+    }
+}
+
+// ─── REAL-TIME UPDATES ───
+let debounceTimer;
+
+function updatePreview() {
+    const root = document.documentElement;
+
+    // Update accent color
+    root.style.setProperty('--accent', state.accentColor);
+    root.style.setProperty('--accent-light', hexToRgba(state.accentColor, 0.08));
+    root.style.setProperty('--accent-mid', hexToRgba(state.accentColor, 0.15));
+
+    // Update brand name everywhere
+    document.getElementById('brandNameDisplay').textContent = state.brandName.toUpperCase();
+    document.getElementById('heroAccent').textContent = state.brandName;
+    document.getElementById('brandMark').textContent = state.brandName.charAt(0).toUpperCase();
+
+    // Update inline brand references in cards
+    document.querySelectorAll('.inline-brand').forEach(el => {
+        el.textContent = state.brandName;
+    });
+
+    // Update key message
+    document.getElementById('keyMessageDisplay').textContent = state.keyMessage;
+
+    // Update color picker sync
+    colorPicker.value = state.accentColor;
+    colorHex.value = state.accentColor;
+
+    // Update preset active states
+    presets.forEach(p => {
+        p.classList.toggle('active', p.dataset.color === state.accentColor);
+    });
+}
+
+// Brand name input
+brandNameInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        state.brandName = e.target.value || defaults.brandName;
+        updatePreview();
+    }, 200);
+});
+
+// Color picker
+colorPicker.addEventListener('input', (e) => {
+    state.accentColor = e.target.value;
+    colorHex.value = e.target.value;
+    updatePreview();
+});
+
+// Color hex input
+colorHex.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        state.accentColor = val;
+        updatePreview();
+    }
+});
+
+// Color presets
+presets.forEach(p => {
+    p.addEventListener('click', () => {
+        state.accentColor = p.dataset.color;
+        updatePreview();
+    });
+});
+
+// Key message input
+keyMessageInput.addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        state.keyMessage = e.target.value || defaults.keyMessage;
+        updatePreview();
+    }, 200);
+});
+
+// ─── SAVE / LOAD / RESET ───
+function saveCustomization() {
+    localStorage.setItem('signalform_demo', JSON.stringify(state));
+    showToast();
+}
+
+function resetCustomization() {
+    state = { ...defaults };
+    brandNameInput.value = defaults.brandName;
+    colorPicker.value = defaults.accentColor;
+    colorHex.value = defaults.accentColor;
+    keyMessageInput.value = defaults.keyMessage;
+    localStorage.removeItem('signalform_demo');
+    updatePreview();
+}
+
+function loadSaved() {
+    const saved = localStorage.getItem('signalform_demo');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            state = { ...defaults, ...parsed };
+            brandNameInput.value = state.brandName;
+            colorPicker.value = state.accentColor;
+            colorHex.value = state.accentColor;
+            keyMessageInput.value = state.keyMessage;
+            updatePreview();
+        } catch (e) { /* ignore parse errors */ }
+    }
+}
+
+function showToast() {
+    gsap.to(toast, {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        ease: 'back.out(1.5)',
+        onComplete: () => {
+            gsap.to(toast, {
+                y: -100,
+                opacity: 0,
+                delay: 1.8,
+                duration: 0.3,
+                ease: 'power2.in'
+            });
+        }
+    });
+}
+
+// ─── OVERLAY ───
+function openOverlay(id) {
+    const data = overlayData[id];
+    if (!data) return;
+
+    overlayContent.innerHTML = `
+        <span class="overlay-tag">${data.tag}</span>
+        <h2 class="overlay-title">${data.title}</h2>
+        <p class="overlay-lead">${data.lead}</p>
+        ${data.html}
+    `;
+
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+
+    gsap.from(overlayContent.children, {
+        opacity: 0,
+        y: 25,
+        stagger: 0.1,
+        duration: 0.5,
+        ease: 'power2.out'
+    });
+}
+
+function closeOverlay() {
+    overlay.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Close overlay on Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (overlay.style.display === 'block') closeOverlay();
+        else if (panelOpen) togglePanel();
+    }
+});
+
+// ─── UTILITY ───
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+    loadSaved();
+
+    // Staggered entrance
+    gsap.to('.fade-in', {
+        opacity: 1,
+        y: 0,
+        stagger: 0.12,
+        duration: 0.8,
+        ease: 'power2.out',
+        delay: 0.2
+    });
+
+    // CTA footer entrance
+    gsap.from('#ctaFooter', {
+        y: 80,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'back.out(1.2)',
+        delay: 1.2
+    });
+
+    // Customize button entrance
+    gsap.from('#customizeToggle', {
+        x: 60,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        delay: 1.5
+    });
+});
+</script>
+
+</body>
+</html>
