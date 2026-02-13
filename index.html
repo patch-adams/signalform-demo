@@ -1540,22 +1540,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // CTA footer entrance
-        gsap.from('#ctaFooter', {
-            y: 80,
-            opacity: 0,
-            duration: 0.6,
-            ease: 'back.out(1.2)',
-            delay: 1.2
-        });
+        gsap.fromTo('#ctaFooter',
+            { y: 80, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.2)', delay: 1.2 }
+        );
 
         // Customize button entrance
-        gsap.from('#customizeToggle', {
-            x: 60,
-            opacity: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-            delay: 1.5
-        });
+        gsap.fromTo('#customizeToggle',
+            { x: 60, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.5, ease: 'power2.out', delay: 1.5 }
+        );
     }
 });
 </script>
